@@ -29,4 +29,4 @@ ls -ld traefik
 ls -l traefik/acme.json
 
 
-echo "Scaffold complete! Deploy with `docker compose up -d` now."
+echo "Scaffold complete! Deploy with 'docker compose up -d' now."
