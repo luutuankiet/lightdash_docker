@@ -10,17 +10,23 @@ POSTGRES_UID=999
 
 # --- Main Logic ---
 echo "Creating persistent directories..."
-mkdir -p persistent/minio persistent/db
+mkdir -p persistent/minio persistent/db traefik
 
-echo "Setting directory ownership..."
+echo "Setting directory ownership and permissions for persistent data..."
 sudo chown $MINIO_UID:$MINIO_UID persistent/minio
 sudo chown $POSTGRES_UID:$POSTGRES_UID persistent/db
+
+echo "Setting permissions for Traefik's acme.json file..."
+# Create an empty acme.json file if it doesn't exist
+touch traefik/acme.json
+# Set permissions to 600 for acme.json (read/write for owner only)
+sudo chmod 600 traefik/acme.json
 
 echo "Verifying directory permissions..."
 ls -ld persistent/minio
 ls -ld persistent/db
+ls -ld traefik
+ls -l traefik/acme.json
 
-echo "Starting the application with Docker Compose..."
-docker-compose up -d
 
-echo "Deployment complete!"
+echo "Scaffold complete! Deploy with `docker compose up -d` now."

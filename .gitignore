@@ -2,3 +2,4 @@
 persistent
 *.code-workspace
 memory.md
+acme.json
