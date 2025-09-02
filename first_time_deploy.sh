@@ -13,14 +13,14 @@ echo "Creating persistent directories..."
 mkdir -p persistent/minio persistent/db
 
 echo "Setting directory ownership..."
-chown $MINIO_UID:$MINIO_UID persistent/minio
-chown $POSTGRES_UID:$POSTGRES_UID persistent/db
+sudo chown $MINIO_UID:$MINIO_UID persistent/minio
+sudo chown $POSTGRES_UID:$POSTGRES_UID persistent/db
 
 echo "Verifying directory permissions..."
 ls -ld persistent/minio
 ls -ld persistent/db
 
 echo "Starting the application with Docker Compose..."
-docker-compose up -d
+# docker-compose up -d
 
 echo "Deployment complete!"
