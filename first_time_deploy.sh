@@ -21,6 +21,6 @@ ls -ld persistent/minio
 ls -ld persistent/db
 
 echo "Starting the application with Docker Compose..."
-# docker-compose up -d
+docker-compose up -d
 
 echo "Deployment complete!"

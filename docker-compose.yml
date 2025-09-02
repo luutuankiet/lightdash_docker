@@ -14,7 +14,9 @@ services:
           - ./persistent/minio:/bitnami/minio/data
     lightdash:
         platform: linux/amd64
-        image: lightdash/lightdash:latest
+        # image: lightdash/lightdash:latest
+        # pulled image as of 09/02
+        image: lightdash/lightdash:0.1971.0
         container_name: lightdash
         depends_on:
             - db
@@ -90,6 +92,7 @@ services:
             # - '${DBT_PROJECT_DIR}:/usr/app/dbt'
         ports:
             - ${PORT:-8080}:${PORT:-8080}
+        env_file: ./.env
 
     db:
         image: postgres:15.4
@@ -102,9 +105,13 @@ services:
         volumes:
             - ./persistent/db:/var/lib/postgresql/data
             # - db-data:/var/lib/postgresql/data
+        env_file: ./.env
 
     # headless-browser:
     #     image: ghcr.io/browserless/chromium:v2.24.3
     #     restart: always
     #     ports:
     #         - '3001:3000'
+
+# volumes:
+#     db-data:
