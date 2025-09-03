@@ -32,6 +32,7 @@ services:
         networks:
             - web
         env_file: ./.env
+        restart: unless-stopped
 
     minio:
         image: bitnami/minio:latest
@@ -135,10 +136,11 @@ services:
             - "traefik.http.services.lightdash.loadbalancer.server.port=8080"
         networks:
             - web
+        restart: unless-stopped
 
     db:
         image: postgres:15.4
-        restart: always
+        restart: unless-stopped
         container_name: db
         environment:
             POSTGRES_PASSWORD: ${PGPASSWORD}
