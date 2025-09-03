@@ -48,6 +48,7 @@ services:
           - ./persistent/minio:/bitnami/minio/data
         networks:
             - web
+        restart: unless-stopped
 
     lightdash:
         platform: linux/amd64
