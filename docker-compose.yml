@@ -75,9 +75,8 @@ services:
 
     lightdash:
         platform: linux/amd64
-        image: lightdash/lightdash:latest
-        # pulled image as of 09/02
-        # image: lightdash/lightdash:0.1971.0
+        # as of 2025/10/17
+        image: lightdash/lightdash:0.2091.1
         container_name: lightdash
         depends_on:
             - db
@@ -185,13 +184,6 @@ services:
 
 
 
-    watchtower:
-        container_name: watchtower
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        image: containrrr/watchtower
-        networks:
-            - web
 # creating specific network to isolate stack from default docker network.
 networks:
     web:
