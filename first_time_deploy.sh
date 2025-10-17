@@ -13,7 +13,7 @@ echo "Creating persistent directories..."
 mkdir -p persistent/minio persistent/db traefik
 
 echo "Setting directory ownership and permissions for persistent data..."
-sudo chown $MINIO_UID:$MINIO_UID persistent/minio
+sudo chmod -R 777 persistent/minio
 sudo chown $POSTGRES_UID:$POSTGRES_UID persistent/db
 
 echo "Setting permissions for Traefik's acme.json file..."

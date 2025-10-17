@@ -35,7 +35,7 @@ services:
         restart: unless-stopped
 
     minio:
-        image: bitnami/minio:latest
+        image: minio/minio:RELEASE.2025-09-07T16-13-09Z
         container_name: minio
         ports:
             - '9000:9000'
@@ -45,16 +45,39 @@ services:
             - MINIO_ROOT_PASSWORD=minioadmin
             - MINIO_DEFAULT_BUCKETS=default
         volumes:
-          - ./persistent/minio:/bitnami/minio/data
+          - ./persistent/minio:/data
         networks:
             - web
         restart: unless-stopped
+        command: 
+          - server
+          - "/data"
+
+    # util service to create bucket
+    minio-mb:
+        image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+        container_name: minio-mb
+        depends_on:
+            - minio
+        restart: on-failure
+        entrypoint: >
+            /bin/sh -c "
+            sleep 5;
+            /usr/bin/mc alias set dockerminio http://minio:9000 minioadmin minioadmin;
+            /usr/bin/mc mb dockerminio/default;
+            exit 0;
+            "
+        networks:
+            - web
+
+
+
 
     lightdash:
         platform: linux/amd64
-        # image: lightdash/lightdash:latest
+        image: lightdash/lightdash:latest
         # pulled image as of 09/02
-        image: lightdash/lightdash:0.1971.0
+        # image: lightdash/lightdash:0.1971.0
         container_name: lightdash
         depends_on:
             - db
@@ -160,6 +183,15 @@ services:
     #     ports:
     #         - '3001:3000'
 
+
+
+    watchtower:
+        container_name: watchtower
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        image: containrrr/watchtower
+        networks:
+            - web
 # creating specific network to isolate stack from default docker network.
 networks:
     web:
