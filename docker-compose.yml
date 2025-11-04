@@ -1,45 +1,8 @@
 version: '3.8'
 services:
-    traefik:
-        image: "traefik:v2.9"
-        container_name: "traefik"
-        command:
-            # --- Basic Settings ---
-            - "--api.dashboard=true"
-            - "--providers.docker=true"
-            - "--providers.docker.exposedbydefault=false"
-            
-            # --- EntryPoints ---
-            - "--entrypoints.web.address=:80"
-            - "--entrypoints.websecure.address=:443"
-            
-            # --- HTTP to HTTPS Redirection ---
-            - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-            - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-            
-            # --- Let's Encrypt Certificate Resolver ---
-            - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
-            - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-            - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare"
-            - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
-        ports:
-            - "80:80"
-            - "443:443"
-            - "8080:8080"
-        volumes:
-            - "./traefik/acme.json:/letsencrypt/acme.json"
-            - "/var/run/docker.sock:/var/run/docker.sock:ro"
-        networks:
-            - web
-        env_file: ./.env
-        restart: unless-stopped
-
     minio:
         image: minio/minio:RELEASE.2025-09-07T16-13-09Z
         container_name: minio
-        ports:
-            - '9000:9000'
-            - '9001:9001' # for minio console
         environment:
             - MINIO_ROOT_USER=minioadmin
             - MINIO_ROOT_PASSWORD=minioadmin
@@ -47,7 +10,7 @@ services:
         volumes:
           - ./persistent/minio:/data
         networks:
-            - web
+            - frontend
         restart: unless-stopped
         command: 
           - server
@@ -68,7 +31,7 @@ services:
             exit 0;
             "
         networks:
-            - web
+            - frontend
 
 
 
@@ -149,17 +112,9 @@ services:
             - RESULTS_S3_BUCKET=${RESULTS_S3_BUCKET:-${RESULTS_CACHE_S3_BUCKET}}
             - RESULTS_S3_SECRET_KEY=${RESULTS_S3_SECRET_KEY:-${RESULTS_CACHE_S3_SECRET_KEY}}
             - RESULTS_S3_ACCESS_KEY=${RESULTS_S3_ACCESS_KEY:-${RESULTS_CACHE_S3_ACCESS_KEY}}
-        # volumes:
-            # - '${DBT_PROJECT_DIR}:/usr/app/dbt'
         env_file: ./.env
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.lightdash.rule=Host(`ld.kenluu.org`)"
-            - "traefik.http.routers.lightdash.entrypoints=websecure"
-            - "traefik.http.routers.lightdash.tls.certresolver=letsencrypt"
-            - "traefik.http.services.lightdash.loadbalancer.server.port=8080"
         networks:
-            - web
+            - frontend
         restart: unless-stopped
 
     db:
@@ -175,13 +130,11 @@ services:
             # - db-data:/var/lib/postgresql/data
         env_file: ./.env
         networks:
-            - web
+            - frontend
 
-    # headless-browser:
-    #     image: ghcr.io/browserless/chromium:v2.24.3
-    #     restart: always
-    #     ports:
-    #         - '3001:3000'
+    headless-browser:
+        image: ghcr.io/browserless/chromium:v2.24.3
+        restart: unless-stopped
 
     watchtower:  
         image: containrrr/watchtower  
@@ -190,14 +143,12 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock  
         environment:  
             - WATCHTOWER_CLEANUP=true  
-            # - WATCHTOWER_SCHEDULE=0 43 6 * * *
             - WATCHTOWER_SCHEDULE=0 0 3 * * * 
         networks:  
-            - web  
+            - frontend  
         restart: unless-stopped
         command: lightdash
 
-# creating specific network to isolate stack from default docker network.
 networks:
-    web:
-        driver: bridge
+    frontend:
+        external: true
