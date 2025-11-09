@@ -55,7 +55,7 @@ services:
             - TRUST_PROXY=${TRUST_PROXY:-false}
             - LIGHTDASH_SECRET=${LIGHTDASH_SECRET}
             - PORT=${PORT:-8080}
-            - LIGHTDASH_LOG_LEVEL=${LIGHTDASH_LOG_LEVEL}
+            - LIGHTDASH_LOG_LEVEL=warn
             - LIGHTDASH_INSTALL_ID=${LIGHTDASH_INSTALL_ID}
             - LIGHTDASH_INSTALL_TYPE=${LIGHTDASH_INSTALL_TYPE:-docker_image}
             - LIGHTDASH_LICENSE_KEY=${LIGHTDASH_LICENSE_KEY}
@@ -135,6 +135,8 @@ services:
     headless-browser:
         image: ghcr.io/browserless/chromium:v2.24.3
         restart: unless-stopped
+        networks:
+         - frontend
 
     watchtower:  
         image: containrrr/watchtower  
@@ -144,6 +146,7 @@ services:
         environment:  
             - WATCHTOWER_CLEANUP=true  
             - WATCHTOWER_SCHEDULE=0 0 3 * * * 
+            - TZ=Asia/Ho_Chi_Minh 
         networks:  
             - frontend  
         restart: unless-stopped
